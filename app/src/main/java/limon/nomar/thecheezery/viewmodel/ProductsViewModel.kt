@@ -1,24 +1,27 @@
 package limon.nomar.thecheezery.viewmodel
 
-
-import android.content.Context
-import android.widget.Toast
-import androidx.lifecycle.ViewModel
-import limon.nomar.thecheezery.data.DatabaseHelper
-import limon.nomar.thecheezery.data.ProductDAO
+import limon.nomar.thecheezery.data.ProductsDAO
 import limon.nomar.thecheezery.domain.Product
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.ViewModel
 
-class ProductsViewModel(databaseHelper: DatabaseHelper, context: Context): ViewModel() {
-    val dao = ProductDAO(databaseHelper)
-    val contextLocal = context
+class ProductViewModel(private val dao: ProductsDAO): ViewModel() {
+    var productsListState by mutableStateOf(listOf<Product>())
 
-    fun onSaveProduct(name: String, price: Float, image: String, description: String) {
-        val product = Product(name = name, price = price, image = image, description = description)
-        val idNewProduct = dao.insertProduct(product)
-        if (idNewProduct == -1L) {
-            Toast.makeText(contextLocal, "Hubo un error al guardar", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(contextLocal, "Producto guardado", Toast.LENGTH_SHORT).show()
+    fun saveProduct(product: Product) {
+        val newProduct = dao.insertProduct(product)
+        if (newProduct != -1L) {
+            getAllProducts()
         }
+    }
+
+    fun getAllProducts() {
+        productsListState = dao.getAllProducts()
+    }
+
+    fun getProductsByType(type: String) {
+        productsListState = dao.getProductsByType(type)
     }
 }
